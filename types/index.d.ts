@@ -10,6 +10,8 @@ declare module "@daemonitor/common" {
     }
 
     export interface IConnector {
+        // constructor(options?: any): void;
+
         sendData(data: any, type: string, uniqueId: string): Promise<void>;
     }
 }

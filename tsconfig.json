@@ -5,24 +5,32 @@
     ]
   },
   "compilerOptions": {
-    "module": "NodeNext",
-    "moduleResolution": "node",
+    "moduleResolution": "NodeNext",
     "lib": [
       "esnext",
       "dom"
     ],
-    "target": "esnext",
+    "target": "ESNext",
+    "module": "ESNext",
     "baseUrl": ".",
     "paths": {
       "~/*": [
         "*"
-      ]
+      ],
+      "@daemonitor/common": ["./node_modules/@daemonitor/common"]
+
     },
     "typeRoots": [
       "./node_modules/@types",
       "./types"
     ],
-    "esModuleInterop": true
+    "outDir": "./dist",
+    "sourceMap": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
   },
   "include": [
     "**/*.ts",

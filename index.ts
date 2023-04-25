@@ -1,4 +1,8 @@
-import { AppConfigProvider } from "@daemonitor/common"
+import { Renderable } from "./Renderable.js"
+export interface IConnector {
+    sendData(data: any, type: string, uniqueId: string): Promise<void>;
+}
 
-export default {AppConfigProvider}
+export {Renderable}
+
 

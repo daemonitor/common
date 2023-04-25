@@ -1,15 +1,35 @@
-import { AppConfig } from "@daemonitor/common"
+export interface AppConfig {
+    plugins: string[] | { [key: string]: any }[],
+
+    [key: string]: any;
+}
 
 
 export class AppConfigProvider {
-    private static config: AppConfig
+    private config?: AppConfig
 
-    static async get(key: string): Promise<any> {
-        if (!AppConfigProvider.config[key]) {
+    constructor(configPath: string) {
+        this.loadConfig(configPath)
+    }
+
+    private async loadConfig(configPath: string): Promise<void> {
+        this.config = await import(configPath)
+    }
+
+    async get(key: string): Promise<any> {
+        console.log("Getting config for key", key, this.config)
+
+        if (!this.config) {
+            throw new Error("Config not loaded.")
+        }
+
+        if (!this.config[key]) {
             return null
         }
-        return AppConfigProvider.config[key]
+        return this.config[key]
+
     }
+
 
     // static async loadConfig(): Promise<void> {
     //     if (!ConfigProvider.config) {

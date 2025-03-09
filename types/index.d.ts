@@ -1,17 +1,24 @@
 declare module "@daemonitor/common" {
 
-    export interface AppConfig {
+    interface AppConfig {
         plugins: string[] | { [key: string]: any }[]
     }
 
 
-    export interface Renderable {
+    interface Renderable {
         render(): Promise<void>
     }
 
-    export interface IConnector {
+    interface IConnector {
         // constructor(options?: any): void;
 
         sendData(data: any, type: string, uniqueId: string): Promise<void>;
     }
+}
+
+
+export {
+    type AppConfig,
+    type Renderable,
+    type IConnector
 }

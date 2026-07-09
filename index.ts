@@ -5,4 +5,8 @@ export interface IConnector {
 
 export {Renderable}
 
+// Shared fleet Service contract (also importable at @daemonitor/common/types/fleet
+// by external consumers, which is the published subpath).
+export * from "./types/fleet.js"
+
 

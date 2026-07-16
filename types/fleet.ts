@@ -133,32 +133,54 @@ export interface CloudflareDetail {
   }
   // Turnstile challenge stats for this zone. Only present when the reporter runs
   // with INCLUDE_TURNSTILE and the zone has widgets.
-  turnstile?: {
+  //
+  // The zone rollup is TurnstileStats across every widget on the zone; `widgets`
+  // carries the same shape per widget.
+  //
+  // The per-widget breakdown matters because a zone can host several widgets on
+  // different hostnames (jobs.x.com, shop.x.com) with wildly different solve
+  // rates, and consumers group by hostname — showing them the zone rollup would be
+  // silently wrong. Narrowing by widget (rather than by the `hostnames` map) is
+  // also the only way to keep verified/failed, since siteverify events are raised
+  // server-side and carry no hostname.
+  turnstile?: TurnstileStats & {
     window?: string
-    // Widget inventory for this zone (a widget may cover several subdomains).
-    widgets?: { sitekey: string; name?: string; mode?: string; domains?: string[] }[]
-    // Challenges served to visitors.
-    issued?: number
-    // Solved in-browser. Excludes siteverify (see `verified`) — those are separate
-    // events for the same challenge, so adding them would push solveRate over 100%.
-    solved?: number
-    // Solves the site's server confirmed via /siteverify.
-    verified?: number
-    // siteverify rejections (e.g. invalid token).
-    failed?: number
-    // Solves that required a visitor interaction vs ones that passed silently —
-    // the bot-vs-human signal.
-    interactive?: number
-    nonInteractive?: number
-    // solved/issued and interactive/(interactive+nonInteractive), as percentages.
-    solveRate?: number | null
-    interactiveRate?: number | null
-    // Per-hostname challenge counts. Server-side siteverify events carry no
-    // hostname, so these cover browser-side events only.
-    hostnames?: Record<string, number>
-    byHour?: { t: string; issued: number; solved: number; failed: number }[]
+    widgets?: TurnstileStats[]
     error?: string
   }
+}
+
+/**
+ * Turnstile challenge stats — used both for a single widget and for a zone-wide
+ * rollup across widgets.
+ */
+export interface TurnstileStats {
+  // Identity — set on per-widget entries, absent on a zone rollup.
+  sitekey?: string
+  name?: string
+  mode?: string
+  domains?: string[]
+
+  // Challenges served to visitors.
+  issued?: number
+  // Solved in-browser. Excludes siteverify (see `verified`) — those are separate
+  // events for the same challenge, so adding them would push solveRate over 100%.
+  solved?: number
+  // Solves the site's server confirmed via /siteverify.
+  verified?: number
+  // siteverify rejections (e.g. invalid token).
+  failed?: number
+  // Solves that required a visitor interaction vs ones that passed silently —
+  // the bot-vs-human signal.
+  interactive?: number
+  nonInteractive?: number
+  // solved/issued and interactive/(interactive+nonInteractive), as percentages.
+  solveRate?: number | null
+  interactiveRate?: number | null
+  // Per-hostname challenge counts. Server-side siteverify events carry no
+  // hostname, so these cover browser-side events only.
+  hostnames?: Record<string, number>
+  byHour?: { t: string; issued: number; solved: number; failed: number }[]
 }
 
 export interface StackGroup {

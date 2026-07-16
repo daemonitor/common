@@ -131,6 +131,34 @@ export interface CloudflareDetail {
     byStatus?: Record<string, number>
     error?: string
   }
+  // Turnstile challenge stats for this zone. Only present when the reporter runs
+  // with INCLUDE_TURNSTILE and the zone has widgets.
+  turnstile?: {
+    window?: string
+    // Widget inventory for this zone (a widget may cover several subdomains).
+    widgets?: { sitekey: string; name?: string; mode?: string; domains?: string[] }[]
+    // Challenges served to visitors.
+    issued?: number
+    // Solved in-browser. Excludes siteverify (see `verified`) — those are separate
+    // events for the same challenge, so adding them would push solveRate over 100%.
+    solved?: number
+    // Solves the site's server confirmed via /siteverify.
+    verified?: number
+    // siteverify rejections (e.g. invalid token).
+    failed?: number
+    // Solves that required a visitor interaction vs ones that passed silently —
+    // the bot-vs-human signal.
+    interactive?: number
+    nonInteractive?: number
+    // solved/issued and interactive/(interactive+nonInteractive), as percentages.
+    solveRate?: number | null
+    interactiveRate?: number | null
+    // Per-hostname challenge counts. Server-side siteverify events carry no
+    // hostname, so these cover browser-side events only.
+    hostnames?: Record<string, number>
+    byHour?: { t: string; issued: number; solved: number; failed: number }[]
+    error?: string
+  }
 }
 
 export interface StackGroup {

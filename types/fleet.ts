@@ -75,6 +75,10 @@ export interface Service {
   metrics?: Metric[]
   sparkline: number[]
   load: number[]
+  // Rolling disk% history for host (os) services — powers the card's DISK
+  // sparkline. Populated client-side by the fleet store (seeded from the DB),
+  // like sparkline (cpu) and load (mem).
+  diskSpark?: number[]
   events: EventLine[]
   ip?: string
   region?: string
@@ -121,10 +125,24 @@ export interface CloudflareDetail {
     totalEvents?: number
     mitigated?: number
     byAction?: Record<string, number>
+    // Which Cloudflare security product handled the event (waf, firewallrules,
+    // ratelimit, botFight, …) — the "what stopped it" view alongside byAction.
+    bySource?: Record<string, number>
     topCountries?: { country: string; count: number }[]
     topSources?: { source: string; count: number }[]
+    // Top individual WAF/firewall rules that fired (ruleId + its source). The
+    // grouped dataset carries no human rule name, so ruleId is shown as-is.
+    topRules?: { ruleId: string; source: string; count: number }[]
     error?: string
   }
+  // Bot Management score distribution (Enterprise-only; undefined otherwise).
+  bot?: { window?: string; total?: number; bySource?: Record<string, number>; error?: string }
+  // Real Web-Analytics (RUM) figures, when the zone has Web Analytics enabled.
+  pageviews?: number
+  visits?: number
+  // Per-bucket traffic history (from detailedAnalytics.timeseries) for the zone
+  // detail traffic chart. Newest last.
+  timeseries?: { timestamp?: string; requests?: number; bandwidth?: number; threats?: number; uniques?: number }[]
   cache?: {
     window?: string
     total?: number

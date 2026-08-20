@@ -134,6 +134,14 @@ export interface CloudflareDetail {
     // grouped dataset carries no human rule name, so ruleId is shown as-is.
     topRules?: { ruleId: string; source: string; count: number }[]
     error?: string
+    /**
+     * Set instead of querying when the reporter knows the answer in advance:
+     * firewall events need Pro or above, so on a Free zone there is nothing to
+     * ask for. Distinct from `error`, which means we asked and it failed.
+     */
+    unavailable?: 'plan' | 'disabled'
+    /** What would make it available, e.g. "Pro". */
+    requires?: string
   }
   // Bot Management score distribution (Enterprise-only; undefined otherwise).
   bot?: { window?: string; total?: number; bySource?: Record<string, number>; error?: string }

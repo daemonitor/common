@@ -100,6 +100,10 @@ export interface Service {
   href?: string
   // Marks a synthetic item that stands in for a whole group (not a real service).
   isGroup?: boolean
+  // Marks a synthetic item that stands in for one service across a cluster's
+  // members. Its `units` are the member hosts, not containers, and its level is
+  // the cluster verdict rather than any one host's status.
+  isCluster?: boolean
   // Owning account (system.user_id, or the group's owner for group items). Used
   // by the "group by account" view mode. Undefined for orphan/pseudo services.
   ownerId?: string
@@ -284,4 +288,97 @@ export interface Channel {
   kind: 'email' | 'slack' | 'webhook'
   value: string
   enabled: boolean
+}
+
+// ---------------------------------------------------------------------------
+// Clusters
+//
+// A cluster is a set of systems judged as one. It exists because some services
+// are placed across the set rather than run on every member: a follow-the-leader
+// singleton is running correctly when exactly one host has it, and that host
+// changes on every failover. Read per host, the other members look broken; read
+// across the set, they look like what they are.
+// ---------------------------------------------------------------------------
+
+/** What a shared service expects of the set. */
+export type Placement = 'singleton' | 'leader' | 'all' | 'quorum'
+
+export interface Cluster {
+  id: string
+  user_id?: string
+  name: string
+  description?: string | null
+  kind: 'generic' | 'patroni'
+  /** Set only when something authoritative named a leader (the patroni plugin). */
+  leader_system_id?: string | null
+  leader_seen_at?: string | null
+  /** Seconds a fault must persist before it pages. Covers a failover window. */
+  grace_seconds: number
+}
+
+export interface ClusterMember {
+  id: string
+  cluster_id: string
+  system_id: string
+}
+
+export interface ClusterService {
+  id: string
+  cluster_id: string
+  name: string
+  /** client_states.type, e.g. 'docker'. */
+  match_type: string
+  /** client_states.unique_id, e.g. 'docker-summarized-apps'. */
+  match_unique_id: string
+  /**
+   * Optional compose service name inside that row, e.g. 'renderer'. Needed
+   * whenever one compose project mixes placements — `summarized-apps` holds a
+   * renderer that must run once and an admin that must run everywhere.
+   */
+  match_container?: string | null
+  placement: Placement
+  min_running: number
+  max_running?: number | null
+  enabled: boolean
+  last_level?: Level | null
+  last_reason?: string | null
+  degraded_since?: string | null
+  evaluated_at?: string | null
+}
+
+/**
+ * Where one member stands on one clustered service.
+ *
+ * `absent` and `unknown` are kept apart on purpose. A member that is checking in
+ * and simply isn't running the service is a follower, and silence about it is
+ * correct. A member whose whole agent has gone dark tells us nothing about the
+ * service at all — counting that as "not running here" is how a cluster with two
+ * dead hosts reports itself healthy.
+ */
+export type MemberPlacementState = 'running' | 'degraded' | 'absent' | 'unknown'
+
+export interface ClusterMemberStatus {
+  systemId: string
+  systemName: string
+  state: MemberPlacementState
+  /** Status word from the member's own row, when it has one. */
+  detail?: string
+  /** True when this member is the cluster leader (patroni clusters only). */
+  leader?: boolean
+}
+
+export interface ClusterVerdict {
+  serviceId: string
+  clusterId: string
+  name: string
+  placement: Placement
+  level: Level
+  /** One line naming what is wrong, or what is right. Used as the alert text. */
+  reason: string
+  members: ClusterMemberStatus[]
+  runningCount: number
+  /** Members whose agent is dark, so their placement is genuinely unknown. */
+  unknownCount: number
+  /** Member names currently running it — "ACTIVE ON pi5b" in the UI. */
+  runningOn: string[]
 }

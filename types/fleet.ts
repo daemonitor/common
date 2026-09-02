@@ -381,4 +381,13 @@ export interface ClusterVerdict {
   unknownCount: number
   /** Member names currently running it — "ACTIVE ON pi5b" in the UI. */
   runningOn: string[]
+  /**
+   * Seconds since the OLDEST member report this verdict was computed from.
+   *
+   * A cluster verdict has no report time of its own — it is derived from several
+   * members that each reported at a different moment — so the honest figure is
+   * the staleness of the weakest evidence. Infinity when no member has reported
+   * at all; undefined when the caller supplied no timestamps.
+   */
+  oldestReportAge?: number
 }

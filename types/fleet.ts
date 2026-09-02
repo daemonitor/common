@@ -390,4 +390,13 @@ export interface ClusterVerdict {
    * at all; undefined when the caller supplied no timestamps.
    */
   oldestReportAge?: number
+  /**
+   * Seconds since the NEWEST member report behind this verdict.
+   *
+   * Paired with `oldestReportAge` it brackets how current the evidence is:
+   * "computed from reports between 8s and 47s old". That pair is the honest
+   * substitute for a latency figure, which a verdict across members does not
+   * have.
+   */
+  freshestReportAge?: number
 }

@@ -116,10 +116,30 @@ export interface Service {
   // Detailed Cloudflare zone security/caching breakdown (cloudflare-domain
   // services only), surfaced on the detail page. Optional/best-effort.
   cf?: CloudflareDetail
+  // Raw AdSense earnings (adsense services only), for consumers that draw
+  // their own revenue view instead of the preformatted `metrics`.
+  adsense?: AdsenseDetail
   // User has hidden this entity from the fleet views (local preference). Hidden
   // items are filtered out unless the global "show hidden" toggle is on, in
   // which case they render dimmed.
   hidden?: boolean
+}
+
+export interface AdsenseDetail {
+  /** ISO 4217 code every amount below is in. */
+  currency: string
+  /** The account's "today" (YYYY-MM-DD, account time zone) these figures were read on. */
+  asOf?: string
+  today: number
+  yesterday: number
+  /** Seven days including today, matching AdSense's own "Last 7 days". */
+  last7: number
+  monthToDate: number
+  pageViews7: number
+  /** Earnings per thousand page views over the same seven days. */
+  rpm: number
+  /** One entry per day, oldest first, gap-filled with zeroes. */
+  daily: { date: string; earnings: number; pageViews: number }[]
 }
 
 export interface CloudflareDetail {
@@ -244,6 +264,8 @@ export interface Group {
   cf_zone?: string | null
   color?: string | null
   sort?: number
+  /** What the group is: 'website', 'application', or null for an ordinary group. Free text. */
+  kind?: string | null
 }
 
 export interface GroupMember {

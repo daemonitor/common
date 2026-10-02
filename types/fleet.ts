@@ -140,6 +140,23 @@ export interface AdsenseDetail {
   rpm: number
   /** One entry per day, oldest first, gap-filled with zeroes. */
   daily: { date: string; earnings: number; pageViews: number }[]
+  /** AdSense's own id for the account, "accounts/pub-…". */
+  accountId?: string
+  /** The same figures per site, biggest earner first. Absent from older agents. */
+  sites?: AdsenseSite[]
+}
+
+/** One hostname's share of an AdSense account. Hostnames do not overlap. */
+export interface AdsenseSite {
+  domain: string
+  today: number
+  yesterday: number
+  last7: number
+  monthToDate: number
+  pageViews7: number
+  rpm: number
+  /** Earnings per day, oldest first, same days as the account's `daily`. */
+  daily: number[]
 }
 
 export interface CloudflareDetail {

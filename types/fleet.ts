@@ -136,10 +136,12 @@ export interface AdsenseDetail {
   last7: number
   monthToDate: number
   pageViews7: number
+  /** Ad clicks over the same seven days. Absent from older agents. */
+  clicks7?: number
   /** Earnings per thousand page views over the same seven days. */
   rpm: number
   /** One entry per day, oldest first, gap-filled with zeroes. */
-  daily: { date: string; earnings: number; pageViews: number }[]
+  daily: { date: string; earnings: number; pageViews: number; clicks?: number }[]
   /** AdSense's own id for the account, "accounts/pub-…". */
   accountId?: string
   /** The same figures per site, biggest earner first. Absent from older agents. */
@@ -154,6 +156,7 @@ export interface AdsenseSite {
   last7: number
   monthToDate: number
   pageViews7: number
+  clicks7?: number
   rpm: number
   /** Earnings per day, oldest first, same days as the account's `daily`. */
   daily: number[]

@@ -70,6 +70,12 @@ export interface Service {
   ping: number
   age: number
   statusWord: string
+  /**
+   * The full reason behind a non-ok status. `statusWord` is cut to 80
+   * characters for the compact rows; this is the whole sentence, for views with
+   * room to wrap it. Absent when the status needs no explanation.
+   */
+  statusReason?: string
   unitLabel: string
   units: Unit[]
   metrics?: Metric[]

@@ -119,6 +119,8 @@ export interface Service {
   // Raw AdSense earnings (adsense services only), for consumers that draw
   // their own revenue view instead of the preformatted `metrics`.
   adsense?: AdsenseDetail
+  // Raw Google Analytics figures (ga4 services only).
+  ga4?: Ga4Detail
   // User has hidden this entity from the fleet views (local preference). Hidden
   // items are filtered out unless the global "show hidden" toggle is on, in
   // which case they render dimmed.
@@ -146,6 +148,34 @@ export interface AdsenseDetail {
   accountId?: string
   /** The same figures per site, biggest earner first. Absent from older agents. */
   sites?: AdsenseSite[]
+}
+
+/** Google Analytics overview: every account and GA4 property the login can see. */
+export interface Ga4Detail {
+  accounts: {
+    id: string
+    name: string
+    properties: Ga4Property[]
+  }[]
+}
+
+export interface Ga4Totals { users: number; sessions: number; views: number }
+
+export interface Ga4Property {
+  id: string
+  name: string
+  /** Set instead of the figures when this property's reports failed. */
+  error?: string
+  /** Users active in the last 30 minutes; null when the realtime call failed. */
+  activeNow?: number | null
+  /** The property's own "today" (its time zone), YYYY-MM-DD. */
+  asOf?: string
+  today?: Ga4Totals
+  yesterday?: Ga4Totals
+  /** GA's own 7-day count (users are not summed across days). */
+  last7?: Ga4Totals
+  /** Per-day figures, oldest first, gap-filled, starting at `start`. */
+  daily?: { start: string; users: number[]; sessions: number[]; views: number[] }
 }
 
 /** One hostname's share of an AdSense account. Hostnames do not overlap. */

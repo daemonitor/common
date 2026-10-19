@@ -121,6 +121,8 @@ export interface Service {
   adsense?: AdsenseDetail
   // Raw Google Analytics figures (ga4 services only).
   ga4?: Ga4Detail
+  // Spend figures (cost services, and groups made only of them).
+  cost?: CostDetail
   // User has hidden this entity from the fleet views (local preference). Hidden
   // items are filtered out unless the global "show hidden" toggle is on, in
   // which case they render dimmed.
@@ -148,6 +150,28 @@ export interface AdsenseDetail {
   accountId?: string
   /** The same figures per site, biggest earner first. Absent from older agents. */
   sites?: AdsenseSite[]
+}
+
+/** What one provider (or a group of them) is billing. Amounts in `currency`. */
+export interface CostDetail {
+  /** openai, anthropic, aws, ... A group of several reads "mixed". */
+  provider: string
+  /** ISO 4217. */
+  currency: string
+  /** The UTC day these figures were read on. */
+  asOf?: string
+  monthToDate: number
+  /** Month-end estimate from complete days so far. */
+  projected: number
+  budget?: number
+  today?: number
+  yesterday?: number
+  /** One entry per day, oldest first, gap-filled. Empty when the API only gives a month-to-date figure. */
+  daily: { date: string; amount: number }[]
+  /** Month-to-date by line item (model, service, campaign), biggest first. */
+  breakdown?: { name: string; amount: number }[]
+  /** Member rows behind a group's total. */
+  parts?: { name: string; provider: string; monthToDate: number; projected: number; budget?: number }[]
 }
 
 /** Google Analytics overview: every account and GA4 property the login can see. */

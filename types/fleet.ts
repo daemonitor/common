@@ -224,6 +224,8 @@ export interface CloudflareDetail {
   serverErrorRate?: number
   statusClasses?: Record<string, number>
   topCountries?: { country: string; requests: number; threats: number }[]
+  // Last 24h: requests that arrived vs. served 2xx (excluding /cdn-cgi/)
+  countries24h?: { country: string; requests: number; served: number }[]
   security?: {
     window?: string
     totalEvents?: number
